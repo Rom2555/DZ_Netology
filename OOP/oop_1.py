@@ -15,7 +15,10 @@ class Student:
             average = sum(all_grades) / len(all_grades)
         else:
             average = 0
-        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {average:.1f}'
+        return (f'Имя: {self.name}\nФамилия: {self.surname}\n'
+                f'Средняя оценка за лекции: {average:.1f}\n'
+                f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
+                f'Завершенные курсы: {", ".join(self.finished_courses)}')
 
     def add_courses(self, course_name):
         self.finished_courses.append(course_name)
@@ -55,7 +58,9 @@ class Lecturer(Mentor):
         else:
             average = 0
 
-        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {average:.1f}'
+        return (f'Имя: {self.name}\n'
+                f'Фамилия: {self.surname}\n'
+                f'Средняя оценка за лекции: {average:.1f}')
 
 
 class Reviewer(Mentor):
@@ -63,7 +68,8 @@ class Reviewer(Mentor):
         super().__init__(name, surname)
 
     def __str__(self):
-        return f'Имя: {self.name}\nФамилия: {self.surname}'
+        return (f'Имя: {self.name}\n'
+                f'Фамилия: {self.surname}')
 
     def rate_hw(self, student, course, grade):
         if isinstance(student,
