@@ -43,6 +43,9 @@ class Student:
         self.finished_courses.append(course_name)
 
     def rate_lecture(self, lecturer, course, grade):
+        if not isinstance(grade, int) or grade < 1 or grade > 10:
+            return 'Ошибка. Оценка должна быть от 1 до 10.'
+
         if isinstance(lecturer,
                       Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
             if course in lecturer.grades:
@@ -69,7 +72,6 @@ class Lecturer(Mentor):
         self.grades = {}
 
     def __str__(self):
-
         return (f'Имя: {self.name}\n'
                 f'Фамилия: {self.surname}\n'
                 f'Средняя оценка за лекции: {self.get_average_grade():.1f}')
@@ -105,6 +107,9 @@ class Reviewer(Mentor):
                 f'Фамилия: {self.surname}')
 
     def rate_hw(self, student, course, grade):
+        if not isinstance(grade, int) or grade < 1 or grade > 10:
+            return 'Ошибка. Оценка должна быть от 1 до 10.'
+
         if isinstance(student,
                       Student) and course in self.courses_attached and course in student.courses_in_progress:
             if course in student.grades:
@@ -118,41 +123,43 @@ class Reviewer(Mentor):
 
 
 # Тесты:
-best_student = Student('Ruoy', 'Eman', 'your_gender')
-best_student.courses_in_progress += ['Python']
-cool_mentor = Mentor('Some', 'Buddy')
-cool_mentor.courses_attached += ['Python']
-reviewer = Reviewer('S', 'B')
-reviewer.courses_attached += ['Python']
 
-reviewer.rate_hw(best_student, 'Python', 10)
-reviewer.rate_hw(best_student, 'Python', 10)
-reviewer.rate_hw(best_student, 'Python', 10)
+# Создаем студентов
+student_1 = Student('Иван', 'Андреев', 'мужской')
+student_2 = Student('Андрей', 'Иванов', 'мужской')
 
-print(best_student.grades)
+# Создаем лекторов
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+lecturer_2 = Lecturer('Мария', 'Сидорова')
 
-lecturer = Lecturer('Иван', 'Иванов')
-reviewer = Reviewer('Пётр', 'Петров')
-print(isinstance(lecturer, Mentor))  # True
-print(isinstance(reviewer, Mentor))  # True
-print(lecturer.courses_attached)  # []
-print(reviewer.courses_attached)  # []
+# Создаем ревьюверов
+reviewer_1 = Reviewer('Олег', 'Александров')
+reviewer_2 = Reviewer('Алексей', 'Петров')
 
-lecturer = Lecturer('Иван', 'Иванов')
-reviewer = Reviewer('Пётр', 'Петров')
-student = Student('Алёхина', 'Ольга', 'Ж')
+# Добавляем курсы студентам
+student_1.courses_in_progress += ['Python', 'Git']
+student_2.courses_in_progress += ['Python', 'SQL']
 
-student.courses_in_progress += ['Python', 'Java']
-lecturer.courses_attached += ['Python', 'C++']
-reviewer.courses_attached += ['Python', 'C++']
+# Добавляем курсы лекторам
+lecturer_1.courses_attached += ['Python', 'Git']
+lecturer_2.courses_attached += ['Python', 'SQL']
 
-print(student.rate_lecture(lecturer, 'Python', 7))  # None
-print(student.rate_lecture(lecturer, 'Java', 8))  # Ошибка
-print(student.rate_lecture(lecturer, 'С++', 8))  # Ошибка
-print(student.rate_lecture(reviewer, 'Python', 6))  # Ошибка
+# Добавляем курсы ревьюверам
+reviewer_1.courses_attached += ['Python', 'Git']
+reviewer_2.courses_attached += ['Python', 'SQL']
 
-print(lecturer.grades)  # {'Python': [7]}
-print(reviewer)
-print(lecturer)
-print(student)
+# Ревьюверы делают оценки студентам
+reviewer_1.rate_hw(student_1, 'Python', 10)
+reviewer_1.rate_hw(student_1, 'Python', 9)
+reviewer_1.rate_hw(student_1, 'Git', 8)
 
+reviewer_2.rate_hw(student_2, 'Python', 9)
+reviewer_2.rate_hw(student_2, 'SQL', 7)
+reviewer_2.rate_hw(student_2, 'SQL', 8)
+
+# Студенты делают оценки лекторам
+student_1.rate_lecture(lecturer_1, 'Python', 10)
+student_1.rate_lecture(lecturer_1, 'Git', 9)
+
+student_2.rate_lecture(lecturer_2, 'Python', 9)
+student_2.rate_lecture(lecturer_2, 'SQL', 8)
