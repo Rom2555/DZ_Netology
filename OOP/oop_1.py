@@ -1,3 +1,7 @@
+from functools import total_ordering
+
+
+@total_ordering
 class Student:
     def __init__(self, name, surname, gender):
         self.name = name
@@ -8,17 +12,32 @@ class Student:
         self.grades = {}
 
     def __str__(self):
+
+        return (f'Имя: {self.name}\nФамилия: {self.surname}\n'
+                f'Средняя оценка за лекции: {self.get_average_grade():.1f}\n'
+                f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
+                f'Завершенные курсы: {", ".join(self.finished_courses)}')
+
+    def __lt__(self, other):
+        if not isinstance(other, Student):
+            return 'Ошибка. Сравнить можно только студента со студентом.'
+        else:
+            return self.get_average_grade() < other.get_average_grade()
+
+    def __eq__(self, other):
+        if not isinstance(other, Student):
+            return 'Ошибка. Сравнить можно только студента со студентом.'
+        else:
+            return self.get_average_grade() == other.get_average_grade()
+
+    def get_average_grade(self):
         all_grades = []
         for grades in self.grades.values():
             all_grades.extend(grades)
         if all_grades:
-            average = sum(all_grades) / len(all_grades)
+            return sum(all_grades) / len(all_grades)
         else:
-            average = 0
-        return (f'Имя: {self.name}\nФамилия: {self.surname}\n'
-                f'Средняя оценка за лекции: {average:.1f}\n'
-                f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
-                f'Завершенные курсы: {", ".join(self.finished_courses)}')
+            return 0
 
     def add_courses(self, course_name):
         self.finished_courses.append(course_name)
@@ -33,7 +52,7 @@ class Student:
                 lecturer.grades[course] = [grade]
                 return None
         else:
-            return 'Ошибка'
+            return 'Ошибка. Студент может поставить оценку только лектору.'
 
 
 class Mentor:
@@ -43,24 +62,38 @@ class Mentor:
         self.courses_attached = []
 
 
+@total_ordering
 class Lecturer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname)
         self.grades = {}
 
     def __str__(self):
-        all_grades = []
-        for grades in self.grades.values():
-            all_grades.extend(grades)
-
-        if all_grades:
-            average = sum(all_grades) / len(all_grades)
-        else:
-            average = 0
 
         return (f'Имя: {self.name}\n'
                 f'Фамилия: {self.surname}\n'
-                f'Средняя оценка за лекции: {average:.1f}')
+                f'Средняя оценка за лекции: {self.get_average_grade():.1f}')
+
+    def __lt__(self, other):
+        if not isinstance(other, Lecturer):
+            return 'Ошибка. Сравнить можно только лектора с лектором.'
+        else:
+            return self.get_average_grade() < other.get_average_grade()
+
+    def __eq__(self, other):
+        if not isinstance(other, Lecturer):
+            return 'Ошибка. Сравнить можно только лектора с лектором.'
+        else:
+            return self.get_average_grade() == other.get_average_grade()
+
+    def get_average_grade(self):
+        all_grades = []
+        for grades in self.grades.values():
+            all_grades.extend(grades)
+        if all_grades:
+            return sum(all_grades) / len(all_grades)
+        else:
+            return 0
 
 
 class Reviewer(Mentor):
@@ -81,7 +114,7 @@ class Reviewer(Mentor):
                 student.grades[course] = [grade]
                 return None
         else:
-            return 'Ошибка'
+            return 'Ошибка. Ревьювер может поставить оценку только студенту.'
 
 
 # Тесты:
@@ -122,3 +155,4 @@ print(lecturer.grades)  # {'Python': [7]}
 print(reviewer)
 print(lecturer)
 print(student)
+
