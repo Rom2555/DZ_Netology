@@ -136,6 +136,10 @@ lecturer_2 = Lecturer('Мария', 'Сидорова')
 reviewer_1 = Reviewer('Олег', 'Александров')
 reviewer_2 = Reviewer('Алексей', 'Петров')
 
+# Создаем менторов
+mentor_1 = Mentor('Михаил', 'Михайлов')
+mentor_2 = Mentor('Вася', 'Васильев')
+
 # Добавляем курсы студентам
 student_1.courses_in_progress += ['Python', 'Git']
 student_2.courses_in_progress += ['Python', 'SQL']
