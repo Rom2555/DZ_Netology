@@ -39,7 +39,7 @@ class Student:
         else:
             return 0
 
-    def add_courses(self, course_name):
+    def add_finished_courses(self, course_name):
         self.finished_courses.append(course_name)
 
     def rate_lecture(self, lecturer, course, grade):
@@ -148,6 +148,11 @@ lecturer_2.courses_attached += ['Python', 'SQL']
 reviewer_1.courses_attached += ['Python', 'Git']
 reviewer_2.courses_attached += ['Python', 'SQL']
 
+# Добавляем пройденные курсы студентам
+student_1.add_finished_courses("C++")
+student_2.add_finished_courses("C++")
+student_2.add_finished_courses("Java")
+
 # Ревьюверы делают оценки студентам
 reviewer_1.rate_hw(student_1, 'Python', 10)
 reviewer_1.rate_hw(student_1, 'Python', 9)
@@ -163,3 +168,35 @@ student_1.rate_lecture(lecturer_1, 'Git', 9)
 
 student_2.rate_lecture(lecturer_2, 'Python', 9)
 student_2.rate_lecture(lecturer_2, 'SQL', 8)
+
+# Вывод людей
+print("Студент 1:")
+print(student_1)
+print("\nСтудент 2:")
+print(student_2)
+print("\nЛектор 1:")
+print(lecturer_1)
+print("\nЛектор 2:")
+print(lecturer_2)
+print("\nРевьювер 1:")
+print(reviewer_1)
+print("\nРевьювер 2:")
+print(reviewer_2)
+
+# Сравнение студентов
+print("\nСравнение студентов:")
+print("student_1 < student_2:", student_1 < student_2)
+print("student_1 == student_2:", student_1 == student_2)
+print("student_1 != student_2:", student_1 != student_2)
+print("student_1 > student_2:", student_1 > student_2)
+print("student_1 >= student_2:", student_1 >= student_2)
+print("student_1 <= student_2:", student_1 <= student_2)
+
+# Сравнение лекторов
+print("\nСравнение лекторов:")
+print("lecturer_1 < lecturer_2:", lecturer_1 < lecturer_2)
+print("lecturer_1 == lecturer_2:", lecturer_1 == lecturer_2)
+print("lecturer_1 != lecturer_2:", lecturer_1 != lecturer_2)
+print("lecturer_1 > lecturer_2:", lecturer_1 > lecturer_2)
+print("lecturer_1 >= lecturer_2:", lecturer_1 >= lecturer_2)
+print("lecturer_1 <= lecturer_2:", lecturer_1 <= lecturer_2)
