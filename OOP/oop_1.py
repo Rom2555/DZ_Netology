@@ -7,6 +7,16 @@ class Student:
         self.courses_in_progress = []
         self.grades = {}
 
+    def __str__(self):
+        all_grades = []
+        for grades in self.grades.values():
+            all_grades.extend(grades)
+        if all_grades:
+            average = sum(all_grades) / len(all_grades)
+        else:
+            average = 0
+        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {average:.1f}'
+
     def add_courses(self, course_name):
         self.finished_courses.append(course_name)
 
@@ -35,10 +45,25 @@ class Lecturer(Mentor):
         super().__init__(name, surname)
         self.grades = {}
 
+    def __str__(self):
+        all_grades = []
+        for grades in self.grades.values():
+            all_grades.extend(grades)
+
+        if all_grades:
+            average = sum(all_grades) / len(all_grades)
+        else:
+            average = 0
+
+        return f'Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {average:.1f}'
+
 
 class Reviewer(Mentor):
     def __init__(self, name, surname):
         super().__init__(name, surname)
+
+    def __str__(self):
+        return f'Имя: {self.name}\nФамилия: {self.surname}'
 
     def rate_hw(self, student, course, grade):
         if isinstance(student,
@@ -88,3 +113,6 @@ print(student.rate_lecture(lecturer, 'С++', 8))  # Ошибка
 print(student.rate_lecture(reviewer, 'Python', 6))  # Ошибка
 
 print(lecturer.grades)  # {'Python': [7]}
+print(reviewer)
+print(lecturer)
+print(student)
