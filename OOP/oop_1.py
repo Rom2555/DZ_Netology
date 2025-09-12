@@ -40,7 +40,8 @@ class Student:
             return 0
 
     def add_finished_courses(self, course_name):
-        self.finished_courses.append(course_name)
+        if course_name not in self.finished_courses:
+            self.finished_courses.append(course_name)
 
     def rate_lecture(self, lecturer, course, grade):
         if not isinstance(grade, int) or grade < 1 or grade > 10:
@@ -120,6 +121,28 @@ class Reviewer(Mentor):
                 return None
         else:
             return 'Ошибка. Ревьювер может поставить оценку только студенту.'
+
+
+def get_student_course_average_grade(students, course):
+    all_grades = []
+    for student in students:
+        if course in student.grades:
+            all_grades.extend(student.grades[course])
+    if all_grades:
+        return sum(all_grades) / len(all_grades)
+    else:
+        return 0
+
+
+def get_lecturer_course_average_grade(lecturers, course):
+    all_grades = []
+    for lecturer in lecturers:
+        if course in lecturer.grades:
+            all_grades.extend(lecturer.grades[course])
+    if all_grades:
+        return sum(all_grades) / len(all_grades)
+    else:
+        return 0
 
 
 # Тесты:
@@ -204,3 +227,13 @@ print("lecturer_1 != lecturer_2:", lecturer_1 != lecturer_2)
 print("lecturer_1 > lecturer_2:", lecturer_1 > lecturer_2)
 print("lecturer_1 >= lecturer_2:", lecturer_1 >= lecturer_2)
 print("lecturer_1 <= lecturer_2:", lecturer_1 <= lecturer_2)
+
+# Подсчёт средней оценки студентов по курсу Python
+course = 'Python'
+average_rating_student = get_student_course_average_grade([student_1, student_2], course)
+print(f"\nСредняя оценка студентов по курсу '{course}': {average_rating_student:.2f}")
+
+# Подсчёт средней оценки лекторов по курсу Git
+course = 'Git'
+average_rating_lecturer = get_lecturer_course_average_grade([lecturer_1, lecturer_2], course)
+print(f"Средняя оценка лекторов по курсу '{course}': {average_rating_lecturer:.2f}")
