@@ -3,7 +3,27 @@ from functools import total_ordering
 
 @total_ordering
 class Student:
+    """
+    Класс для студента.
+
+    Атрибуты:
+        name (str): Имя студента.
+        surname (str): Фамилия студента.
+        gender (str): Пол студента.
+        finished_courses (list): Список завершённых курсов.
+        courses_in_progress (list): Список курсов, которые проходит студент.
+        grades (dict): Словарь оценок по курсам.
+    """
+
     def __init__(self, name, surname, gender):
+        """
+        Инициализирует экземпляр класса Student.
+
+        Args:
+            name (str): Имя студента.
+            surname (str): Фамилия студента.
+            gender (str): Пол студента.
+        """
         self.name = name
         self.surname = surname
         self.gender = gender
@@ -12,38 +32,83 @@ class Student:
         self.grades = {}
 
     def __str__(self):
+        """
+        Возвращает строковое представление экземпляра класса Student.
 
-        return (f'Имя: {self.name}\nФамилия: {self.surname}\n'
-                f'Средняя оценка за лекции: {self.get_average_grade():.1f}\n'
-                f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
-                f'Завершенные курсы: {", ".join(self.finished_courses)}')
+        Returns:
+            str: Информация о студенте.
+        """
+        return (
+            f'Имя: {self.name}\n'
+            f'Фамилия: {self.surname}\n'
+            f'Средняя оценка за лекции: {self.get_average_grade():.1f}\n'
+            f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n'
+            f'Завершенные курсы: {", ".join(self.finished_courses)}'
+        )
 
     def __lt__(self, other):
+        """
+        Сравнивает студента с другим студентом по средней оценке.
+
+        Args:
+            other (Student): Другой студент для сравнения.
+
+        Returns:
+            bool
+        """
         if not isinstance(other, Student):
-            return 'Ошибка. Сравнить можно только студента со студентом.'
-        else:
-            return self.get_average_grade() < other.get_average_grade()
+            raise TypeError("Нельзя сравнивать студента с другим типом")
+        return self.get_average_grade() < other.get_average_grade()
 
     def __eq__(self, other):
+        """
+        Проверяет, равны ли средние оценки двух студентов.
+
+        Args:
+            other (Student): Другой студент для сравнения.
+
+        Returns:
+            bool
+        """
         if not isinstance(other, Student):
-            return 'Ошибка. Сравнить можно только студента со студентом.'
-        else:
-            return self.get_average_grade() == other.get_average_grade()
+            raise TypeError("Нельзя сравнивать студента с другим типом")
+        return self.get_average_grade() == other.get_average_grade()
 
     def get_average_grade(self):
+        """
+        Вычисляет среднюю оценку студента по всем курсам.
+
+        Returns:
+            float: Средняя оценка. (0 - оценок нет).
+        """
         all_grades = []
         for grades in self.grades.values():
             all_grades.extend(grades)
-        if all_grades:
-            return sum(all_grades) / len(all_grades)
-        else:
-            return 0
+        return sum(all_grades) / len(all_grades) if all_grades else 0
 
     def add_finished_courses(self, course_name):
+        """
+        Добавляет курс в список завершённых курсов студента.
+
+        Args:
+            course_name (str): Название курса.
+        """
         if course_name not in self.finished_courses:
             self.finished_courses.append(course_name)
 
     def rate_lecture(self, lecturer, course, grade):
+        """
+        Позволяет студенту поставить оценку лектору за лекцию.
+
+        Args:
+            lecturer (Lecturer): Лектор, которому ставицатся оценка.
+            course (str): Название курса.
+            grade (int): Оценка от 1 до 10.
+
+        Returns:
+            None: Если всё прошло хорошо.
+            str: Сообщение об ошибке.
+        """
         if not isinstance(grade, int) or grade < 1 or grade > 10:
             return 'Ошибка. Оценка должна быть от 1 до 10.'
 
@@ -60,7 +125,23 @@ class Student:
 
 
 class Mentor:
+    """
+    Класс для менторов. Родительский класс для лекторов и ревьюеров.
+
+    Атрибуты:
+        name (str): Имя ментора.
+        surname (str): Фамилия ментора.
+        courses_attached (list): Список курсов ментора.
+    """
+
     def __init__(self, name, surname):
+        """
+        Инициализирует экземпляр класса Mentor.
+
+        Args:
+            name (str): Имя ментора.
+            surname (str): Фамилия ментора.
+        """
         self.name = name
         self.surname = surname
         self.courses_attached = []
@@ -68,51 +149,130 @@ class Mentor:
 
 @total_ordering
 class Lecturer(Mentor):
+    """
+    Класс для лектора.
+
+    Атрибуты:
+        name (str): Имя лектора.
+        surname (str): Фамилия лектора.
+        courses_attached (list): Список курсов лектора.
+        grades (dict): Словарь оценок от студентов.
+    """
+
     def __init__(self, name, surname):
+        """
+        Инициализирует экземпляр класса Lecturer.
+
+        Args:
+            name (str): Имя лектора.
+            surname (str): Фамилия лектора.
+        """
         super().__init__(name, surname)
         self.grades = {}
 
     def __str__(self):
-        return (f'Имя: {self.name}\n'
-                f'Фамилия: {self.surname}\n'
-                f'Средняя оценка за лекции: {self.get_average_grade():.1f}')
+        """
+        Возвращает строковое представление экземпляра класса Lecturer.
+
+        Returns:
+            str: Информация о лекторе.
+        """
+        return (
+            f'Имя: {self.name}\n'
+            f'Фамилия: {self.surname}\n'
+            f'Средняя оценка за лекции: {self.get_average_grade():.1f}'
+        )
 
     def __lt__(self, other):
+        """
+        Сравнивает лектора с другим лектором по средней оценке.
+
+        Args:
+            other (Lecturer): Другой лектор для сравнения.
+
+        Returns:
+            bool: True, если текущий лектор имеет меньшую среднюю оценку.
+        """
         if not isinstance(other, Lecturer):
-            return 'Ошибка. Сравнить можно только лектора с лектором.'
-        else:
-            return self.get_average_grade() < other.get_average_grade()
+            raise TypeError("Нельзя сравнивать лектора с другим типом")
+        return self.get_average_grade() < other.get_average_grade()
 
     def __eq__(self, other):
+        """
+        Проверяет, средние оценки двух лекторов равны?
+
+        Args:
+            other (Lecturer): Другой лектор для сравнения.
+
+        Returns:
+            bool: True, если средние оценки равны.
+        """
         if not isinstance(other, Lecturer):
-            return 'Ошибка. Сравнить можно только лектора с лектором.'
-        else:
-            return self.get_average_grade() == other.get_average_grade()
+            raise TypeError("Нельзя сравнивать лектора с другим типом")
+        return self.get_average_grade() == other.get_average_grade()
 
     def get_average_grade(self):
+        """
+        Вычисляет среднюю оценку лектора по всем курсам.
+
+        Returns:
+            float: Средняя оценка. Если оценок нет, то 0.
+        """
         all_grades = []
         for grades in self.grades.values():
             all_grades.extend(grades)
-        if all_grades:
-            return sum(all_grades) / len(all_grades)
-        else:
-            return 0
+        return sum(all_grades) / len(all_grades) if all_grades else 0
 
 
 class Reviewer(Mentor):
+    """
+    Класс ревьювера.
+
+    Атрибуты:
+        name (str): Имя ревьювера.
+        surname (str): Фамилия ревьювера.
+        courses_attached (list): Список курсов, за которыми закреплён ревьювер.
+    """
+
     def __init__(self, name, surname):
+        """
+        Инициализирует экземпляр класса Reviewer.
+
+        Args:
+            name (str): Имя ревьювера.
+            surname (str): Фамилия ревьювера.
+        """
         super().__init__(name, surname)
 
     def __str__(self):
-        return (f'Имя: {self.name}\n'
-                f'Фамилия: {self.surname}')
+        """
+        Возвращает строковое представление объекта Reviewer.
+
+        Returns:
+            str: Информация о ревьювере.
+        """
+        return (
+            f'Имя: {self.name}\n'
+            f'Фамилия: {self.surname}'
+        )
 
     def rate_hw(self, student, course, grade):
+        """
+        Выставляет оценку студенту за домашнюю работу.
+
+        Args:
+            student (Student): Студент, которому ставится оценка.
+            course (str): Название курса.
+            grade (int): Оценка от 1 до 10.
+
+        Returns:
+            None: Если всё ОК.
+            str: Сообщение об ошибке.
+        """
         if not isinstance(grade, int) or grade < 1 or grade > 10:
             return 'Ошибка. Оценка должна быть от 1 до 10.'
 
-        if isinstance(student,
-                      Student) and course in self.courses_attached and course in student.courses_in_progress:
+        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
             if course in student.grades:
                 student.grades[course].append(grade)
                 return None
@@ -124,29 +284,41 @@ class Reviewer(Mentor):
 
 
 def get_student_course_average_grade(students, course):
+    """
+    Вычисляет среднюю оценку всех студентов по конкретному курсу.
+
+    Args:
+        students (list): Список студентов.
+        course (str): Название курса.
+
+    Returns:
+        float: Средняя оценка по курсу. 0, если оценок нет.
+    """
     all_grades = []
     for student in students:
         if course in student.grades:
             all_grades.extend(student.grades[course])
-    if all_grades:
-        return sum(all_grades) / len(all_grades)
-    else:
-        return 0
+    return sum(all_grades) / len(all_grades) if all_grades else 0
 
 
 def get_lecturer_course_average_grade(lecturers, course):
+    """
+    Вычисляет среднюю оценку всех лекторов по конкретному курсу.
+
+    Args:
+        lecturers (list): Список лекторов.
+        course (str): Название курса.
+
+    Returns:
+        float: Средняя оценка по курсу. 0, если оценок нет.
+    """
     all_grades = []
     for lecturer in lecturers:
         if course in lecturer.grades:
             all_grades.extend(lecturer.grades[course])
-    if all_grades:
-        return sum(all_grades) / len(all_grades)
-    else:
-        return 0
+    return sum(all_grades) / len(all_grades) if all_grades else 0
 
-
-# Тесты:
-
+# Тесты
 # Создаем студентов
 student_1 = Student('Иван', 'Андреев', 'мужской')
 student_2 = Student('Андрей', 'Иванов', 'мужской')
@@ -196,7 +368,7 @@ student_1.rate_lecture(lecturer_1, 'Git', 9)
 student_2.rate_lecture(lecturer_2, 'Python', 9)
 student_2.rate_lecture(lecturer_2, 'SQL', 8)
 
-# Вывод людей
+# Вывод информации
 print("Студент 1:")
 print(student_1)
 print("\nСтудент 2:")
