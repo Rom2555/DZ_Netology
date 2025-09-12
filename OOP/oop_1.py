@@ -1,3 +1,7 @@
+"""
+Домашнее задание 'ООП, наследование, инкапсуляция и полиморфизм'. Егоров Роман, группа pd-136
+"""
+
 from functools import total_ordering
 
 
@@ -317,6 +321,7 @@ def get_lecturer_course_average_grade(lecturers, course):
         if course in lecturer.grades:
             all_grades.extend(lecturer.grades[course])
     return sum(all_grades) / len(all_grades) if all_grades else 0
+
 
 # Тесты
 # Создаем студентов
