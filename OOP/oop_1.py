@@ -5,8 +5,22 @@
 from functools import total_ordering
 
 
+class GetAverageMixin:
+    def get_average_grade(self):
+        """
+        Вычисляет среднюю оценку лектора по всем курсам.
+
+        Returns:
+            float: Средняя оценка. Если оценок нет, то 0.
+        """
+        all_grades = []
+        for grades in self.grades.values():
+            all_grades.extend(grades)
+        return sum(all_grades) / len(all_grades) if all_grades else 0
+
+
 @total_ordering
-class Student:
+class Student(GetAverageMixin):
     """
     Класс для студента.
 
@@ -78,17 +92,6 @@ class Student:
             raise TypeError("Нельзя сравнивать студента с другим типом")
         return self.get_average_grade() == other.get_average_grade()
 
-    def get_average_grade(self):
-        """
-        Вычисляет среднюю оценку студента по всем курсам.
-
-        Returns:
-            float: Средняя оценка. (0 - оценок нет).
-        """
-        all_grades = []
-        for grades in self.grades.values():
-            all_grades.extend(grades)
-        return sum(all_grades) / len(all_grades) if all_grades else 0
 
     def rate_lecture(self, lecturer, course, grade):
         """
@@ -142,7 +145,7 @@ class Mentor:
 
 
 @total_ordering
-class Lecturer(Mentor):
+class Lecturer(Mentor, GetAverageMixin):
     """
     Класс для лектора.
 
@@ -205,17 +208,7 @@ class Lecturer(Mentor):
             raise TypeError("Нельзя сравнивать лектора с другим типом")
         return self.get_average_grade() == other.get_average_grade()
 
-    def get_average_grade(self):
-        """
-        Вычисляет среднюю оценку лектора по всем курсам.
 
-        Returns:
-            float: Средняя оценка. Если оценок нет, то 0.
-        """
-        all_grades = []
-        for grades in self.grades.values():
-            all_grades.extend(grades)
-        return sum(all_grades) / len(all_grades) if all_grades else 0
 
 
 class Reviewer(Mentor):
@@ -275,6 +268,9 @@ class Reviewer(Mentor):
                 return None
         else:
             return 'Ошибка. Ревьювер может поставить оценку только студенту.'
+
+
+
 
 
 def get_student_course_average_grade(students, course):
