@@ -6,6 +6,9 @@ from functools import total_ordering
 
 
 class GetAverageMixin:
+    def __init__(self):
+        self.grades = None
+
     def get_average_grade(self):
         """
         Вычисляет среднюю оценку лектора по всем курсам.
