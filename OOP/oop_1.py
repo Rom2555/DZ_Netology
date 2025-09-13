@@ -92,7 +92,6 @@ class Student(GetAverageMixin):
             raise TypeError("Нельзя сравнивать студента с другим типом")
         return self.get_average_grade() == other.get_average_grade()
 
-
     def rate_lecture(self, lecturer, course, grade):
         """
         Позволяет студенту поставить оценку лектору за лекцию.
@@ -209,8 +208,6 @@ class Lecturer(Mentor, GetAverageMixin):
         return self.get_average_grade() == other.get_average_grade()
 
 
-
-
 class Reviewer(Mentor):
     """
     Класс ревьювера.
@@ -268,9 +265,6 @@ class Reviewer(Mentor):
                 return None
         else:
             return 'Ошибка. Ревьювер может поставить оценку только студенту.'
-
-
-
 
 
 def get_student_course_average_grade(students, course):
