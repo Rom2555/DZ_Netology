@@ -19,8 +19,45 @@ class GetAverageMixin:
         return sum(all_grades) / len(all_grades) if all_grades else 0
 
 
+class Grader:
+    """
+    Базовый класс для объектов, которые могут выставлять оценки.
+    """
+
+    def rate(self, target, course, grade):
+        """
+        Выставляет оценку другому участнику за курс.
+
+        Args:
+            target (object): Объект, которому ставится оценка.
+            course (str): Название курса.
+            grade (int): Оценка от 1 до 10.
+
+        Returns:
+            None: Если всё прошло успешно.
+            str: Сообщение об ошибке.
+        """
+        if not isinstance(grade, int) or grade < 1 or grade > 10:
+            return 'Ошибка. Оценка должна быть от 1 до 10.'
+
+        # Проверяем, что у self есть courses_attached и target — courses_in_progress
+        if hasattr(self, 'courses_attached') and hasattr(target, 'courses_in_progress'):
+            if course not in self.courses_attached:
+                return f'Ошибка: {self.name} не закреплён за курсом "{course}".'
+            if course not in target.courses_in_progress:
+                return f'Ошибка: {target.name} не проходит курс "{course}".'
+
+        # Добавляем оценку
+        if course in target.grades:
+            target.grades[course].append(grade)
+            return None
+        else:
+            target.grades[course] = [grade]
+            return None
+
+
 @total_ordering
-class Student(GetAverageMixin):
+class Student(GetAverageMixin, Grader):
     """
     Класс для студента.
 
@@ -47,6 +84,7 @@ class Student(GetAverageMixin):
         self.gender = gender
         self.finished_courses = []
         self.courses_in_progress = []
+        self.courses_attached = []
         self.grades = {}
 
     def __str__(self):
@@ -92,13 +130,12 @@ class Student(GetAverageMixin):
             raise TypeError("Нельзя сравнивать студента с другим типом")
         return self.get_average_grade() == other.get_average_grade()
 
-
     def rate_lecture(self, lecturer, course, grade):
         """
         Позволяет студенту поставить оценку лектору за лекцию.
 
         Args:
-            lecturer (Lecturer): Лектор, которому ставицатся оценка.
+            lecturer (Lecturer): Лектор, которому ставится оценка.
             course (str): Название курса.
             grade (int): Оценка от 1 до 10.
 
@@ -106,19 +143,7 @@ class Student(GetAverageMixin):
             None: Если всё прошло хорошо.
             str: Сообщение об ошибке.
         """
-        if not isinstance(grade, int) or grade < 1 or grade > 10:
-            return 'Ошибка. Оценка должна быть от 1 до 10.'
-
-        if isinstance(lecturer,
-                      Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
-            if course in lecturer.grades:
-                lecturer.grades[course].append(grade)
-                return None
-            else:
-                lecturer.grades[course] = [grade]
-                return None
-        else:
-            return 'Ошибка. Студент может поставить оценку только лектору.'
+        return self.rate(lecturer, course, grade)
 
 
 class Mentor:
@@ -209,9 +234,7 @@ class Lecturer(Mentor, GetAverageMixin):
         return self.get_average_grade() == other.get_average_grade()
 
 
-
-
-class Reviewer(Mentor):
+class Reviewer(Mentor, Grader):
     """
     Класс ревьювера.
 
@@ -256,21 +279,7 @@ class Reviewer(Mentor):
             None: Если всё ОК.
             str: Сообщение об ошибке.
         """
-        if not isinstance(grade, int) or grade < 1 or grade > 10:
-            return 'Ошибка. Оценка должна быть от 1 до 10.'
-
-        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
-            if course in student.grades:
-                student.grades[course].append(grade)
-                return None
-            else:
-                student.grades[course] = [grade]
-                return None
-        else:
-            return 'Ошибка. Ревьювер может поставить оценку только студенту.'
-
-
-
+        return self.rate(student, course, grade)
 
 
 def get_student_course_average_grade(students, course):
@@ -395,3 +404,64 @@ print(f"\nСредняя оценка студентов по курсу '{cours
 course = 'Git'
 average_rating_lecturer = get_lecturer_course_average_grade([lecturer_1, lecturer_2], course)
 print(f"Средняя оценка лекторов по курсу '{course}': {average_rating_lecturer:.2f}")
+
+print("\nПроверка работы rate() и обработки ошибок:")
+
+# Тест 1: Неверная оценка (меньше 1)
+print("\nТест 1: Оценка меньше 1")
+student_1 = Student('Иван', 'Андреев', 'мужской')
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+student_1.courses_attached = ['Python']
+student_1.courses_in_progress = ['Python']
+lecturer_1.courses_attached = ['Python']
+result = student_1.rate(lecturer_1, 'Python', 0)
+print("Результат:", result)  # Ожидаем: "Ошибка. Оценка должна быть от 1 до 10."
+
+# Тест 2: Неверная оценка (больше 10)
+print("\nТест 2: Оценка больше 10")
+student_1 = Student('Иван', 'Андреев', 'мужской')
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+student_1.courses_attached = ['Python']
+student_1.courses_in_progress = ['Python']
+lecturer_1.courses_attached = ['Python']
+result = student_1.rate(lecturer_1, 'Python', 11)
+print("Результат:", result)  # Ожидаем: "Ошибка. Оценка должна быть от 1 до 10."
+
+# Тест 3: Студент не закреплён за курсом
+print("\nТест 3: Студент не закреплён за курсом")
+student_1 = Student('Иван', 'Андреев', 'мужской')
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+student_1.courses_in_progress = ['Python']
+lecturer_1.courses_attached = ['Python']
+result = student_1.rate(lecturer_1, 'Python', 10)
+print("Результат:", result)  # Ожидаем: "Ошибка: Иван не закреплён за курсом 'Python'."
+
+# Тест 4: Лектор не преподает курс
+print("\nТест 4: Лектор не преподает курс")
+student_1 = Student('Иван', 'Андреев', 'мужской')
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+student_1.courses_attached = ['Python']
+student_1.courses_in_progress = ['Python']
+lecturer_1.courses_attached = ['Git']  # Не Python
+result = student_1.rate(lecturer_1, 'Python', 10)
+print("Результат:", result)  # Ожидаем: "Ошибка: Ирина Сергеева не закреплён за курсом 'Python'."
+
+# Тест 5: Студент не проходит курс
+print("\nТест 5: Студент не проходит курс")
+student_1 = Student('Иван', 'Андреев', 'мужской')
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+student_1.courses_attached = ['Python']
+lecturer_1.courses_attached = ['Python']
+result = student_1.rate(lecturer_1, 'Python', 10)
+print("Результат:", result)  # Ожидаем: "Ошибка: Иван Андреев не проходит курс 'Python'."
+
+# Тест 6: Успешное выставление оценки
+print("\nТест 6: Успешное выставление оценки")
+student_1 = Student('Иван', 'Андреев', 'мужской')
+lecturer_1 = Lecturer('Ирина', 'Сергеева')
+student_1.courses_attached = ['Python']
+student_1.courses_in_progress = ['Python']
+lecturer_1.courses_attached = ['Python']
+result = student_1.rate(lecturer_1, 'Python', 10)
+print("Результат:", result)  # Ожидаем: None
+print("Оценки лектора теперь:", lecturer_1.grades)
