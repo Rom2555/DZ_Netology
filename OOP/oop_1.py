@@ -90,15 +90,15 @@ class Student:
             all_grades.extend(grades)
         return sum(all_grades) / len(all_grades) if all_grades else 0
 
-    def add_finished_courses(self, course_name):
-        """
-        Добавляет курс в список завершённых курсов студента.
-
-        Args:
-            course_name (str): Название курса.
-        """
-        if course_name not in self.finished_courses:
-            self.finished_courses.append(course_name)
+    # def add_finished_courses(self, course_name):
+    #     """
+    #     Добавляет курс в список завершённых курсов студента.
+    #
+    #     Args:
+    #         course_name (str): Название курса.
+    #     """
+    #     if course_name not in self.finished_courses:
+    #         self.finished_courses.append(course_name)
 
     def rate_lecture(self, lecturer, course, grade):
         """
@@ -353,9 +353,9 @@ reviewer_1.courses_attached += ['Python', 'Git']
 reviewer_2.courses_attached += ['Python', 'SQL']
 
 # Добавляем пройденные курсы студентам
-student_1.add_finished_courses("C++")
-student_2.add_finished_courses("C++")
-student_2.add_finished_courses("Java")
+# student_1.add_finished_courses("C++")
+# student_2.add_finished_courses("C++")
+# student_2.add_finished_courses("Java")
 
 # Ревьюверы делают оценки студентам
 reviewer_1.rate_hw(student_1, 'Python', 10)
