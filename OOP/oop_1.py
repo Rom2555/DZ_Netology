@@ -6,7 +6,13 @@ from functools import total_ordering
 
 
 class GetAverageMixin:
+    """
+    Миксин для получения средней оценки.
+    """
     def __init__(self):
+        """
+        Инициализирует экземпляр класса GetAverageMixin.
+        """
         self.grades = None
 
     def get_average_grade(self):
