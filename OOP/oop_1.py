@@ -5,8 +5,64 @@
 from functools import total_ordering
 
 
+class GradedMixin:
+    """
+    Миксин для объектов, которые могут иметь оценки за курсы.
+
+    Предоставляет функциональность для хранения, добавления и вычисления средней оценки.
+    Может использоваться в классах, таких как Student и Lecturer, которые получают оценки от других участников.
+
+    Атрибуты:
+        grades (dict): Словарь, где ключ — название курса, значение — список оценок по этому курсу.
+    """
+
+    def __init__(self):
+        """
+        Инициализирует экземпляр миксина.
+
+        Устанавливает пустой словарь для хранения оценок.
+        """
+        self.grades = {}
+
+    def add_grade(self, course, grade):
+        """
+        Добавляет оценку к списку оценок по указанному курсу.
+
+        Args:
+            course (str): Название курса.
+            grade (int): Оценка от 1 до 10.
+
+        Raises:
+            ValueError: Если оценка вне диапазона [1, 10].
+
+        Returns:
+            None
+        """
+        if not isinstance(grade, int) or grade < 1 or grade > 10:
+            raise ValueError("Ошибка. Оценка должна быть целым числом от 1 до 10.")
+
+        if course in self.grades:
+            self.grades[course].append(grade)
+        else:
+            self.grades[course] = [grade]
+
+    def get_average_grade(self):
+        """
+        Вычисляет среднюю оценку по всем курсам.
+
+        Возвращает среднее значение всех оценок, или 0, если оценок нет.
+
+        Returns:
+            float: Средняя оценка.
+        """
+        all_grades = []
+        for grades in self.grades.values():
+            all_grades.extend(grades)
+        return sum(all_grades) / len(all_grades) if all_grades else 0
+
+
 @total_ordering
-class Student:
+class Student(GradedMixin):
     """
     Класс для студента.
 
@@ -28,6 +84,7 @@ class Student:
             surname (str): Фамилия студента.
             gender (str): Пол студента.
         """
+        super().__init__()
         self.name = name
         self.surname = surname
         self.gender = gender
@@ -78,28 +135,6 @@ class Student:
             raise TypeError("Нельзя сравнивать студента с другим типом")
         return self.get_average_grade() == other.get_average_grade()
 
-    def get_average_grade(self):
-        """
-        Вычисляет среднюю оценку студента по всем курсам.
-
-        Returns:
-            float: Средняя оценка. (0 - оценок нет).
-        """
-        all_grades = []
-        for grades in self.grades.values():
-            all_grades.extend(grades)
-        return sum(all_grades) / len(all_grades) if all_grades else 0
-
-    def add_finished_courses(self, course_name):
-        """
-        Добавляет курс в список завершённых курсов студента.
-
-        Args:
-            course_name (str): Название курса.
-        """
-        if course_name not in self.finished_courses:
-            self.finished_courses.append(course_name)
-
     def rate_lecture(self, lecturer, course, grade):
         """
         Позволяет студенту поставить оценку лектору за лекцию.
@@ -118,12 +153,8 @@ class Student:
 
         if isinstance(lecturer,
                       Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
-            if course in lecturer.grades:
-                lecturer.grades[course].append(grade)
-                return None
-            else:
-                lecturer.grades[course] = [grade]
-                return None
+            lecturer.add_grade(course, grade)
+            return None
         else:
             return 'Ошибка. Студент может поставить оценку только лектору.'
 
@@ -152,7 +183,7 @@ class Mentor:
 
 
 @total_ordering
-class Lecturer(Mentor):
+class Lecturer(Mentor, GradedMixin):
     """
     Класс для лектора.
 
@@ -215,18 +246,6 @@ class Lecturer(Mentor):
             raise TypeError("Нельзя сравнивать лектора с другим типом")
         return self.get_average_grade() == other.get_average_grade()
 
-    def get_average_grade(self):
-        """
-        Вычисляет среднюю оценку лектора по всем курсам.
-
-        Returns:
-            float: Средняя оценка. Если оценок нет, то 0.
-        """
-        all_grades = []
-        for grades in self.grades.values():
-            all_grades.extend(grades)
-        return sum(all_grades) / len(all_grades) if all_grades else 0
-
 
 class Reviewer(Mentor):
     """
@@ -277,12 +296,8 @@ class Reviewer(Mentor):
             return 'Ошибка. Оценка должна быть от 1 до 10.'
 
         if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
-            if course in student.grades:
-                student.grades[course].append(grade)
-                return None
-            else:
-                student.grades[course] = [grade]
-                return None
+            student.add_grade(course, grade)
+            return None
         else:
             return 'Ошибка. Ревьювер может поставить оценку только студенту.'
 
@@ -351,11 +366,6 @@ lecturer_2.courses_attached += ['Python', 'SQL']
 # Добавляем курсы ревьюверам
 reviewer_1.courses_attached += ['Python', 'Git']
 reviewer_2.courses_attached += ['Python', 'SQL']
-
-# Добавляем пройденные курсы студентам
-student_1.add_finished_courses("C++")
-student_2.add_finished_courses("C++")
-student_2.add_finished_courses("Java")
 
 # Ревьюверы делают оценки студентам
 reviewer_1.rate_hw(student_1, 'Python', 10)
