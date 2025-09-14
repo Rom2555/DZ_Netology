@@ -5,22 +5,55 @@
 from functools import total_ordering
 
 
-class GetAverageMixin:
+class GradedMixin:
     """
-    Миксин для получения средней оценки.
+    Миксин для объектов, которые могут иметь оценки за курсы.
+
+    Предоставляет функциональность для хранения, добавления и вычисления средней оценки.
+    Может использоваться в классах, таких как Student и Lecturer, которые получают оценки от других участников.
+
+    Атрибуты:
+        grades (dict): Словарь, где ключ — название курса, значение — список оценок по этому курсу.
     """
+
     def __init__(self):
         """
-        Инициализирует экземпляр класса GetAverageMixin.
+        Инициализирует экземпляр миксина.
+
+        Устанавливает пустой словарь для хранения оценок.
         """
         self.grades = {}
 
-    def get_average_grade(self):
+    def add_grade(self, course, grade):
         """
-        Вычисляет среднюю оценку лектора по всем курсам.
+        Добавляет оценку к списку оценок по указанному курсу.
+
+        Args:
+            course (str): Название курса.
+            grade (int): Оценка от 1 до 10.
+
+        Raises:
+            ValueError: Если оценка вне диапазона [1, 10].
 
         Returns:
-            float: Средняя оценка. Если оценок нет, то 0.
+            None
+        """
+        if not isinstance(grade, int) or grade < 1 or grade > 10:
+            raise ValueError("Ошибка. Оценка должна быть целым числом от 1 до 10.")
+
+        if course in self.grades:
+            self.grades[course].append(grade)
+        else:
+            self.grades[course] = [grade]
+
+    def get_average_grade(self):
+        """
+        Вычисляет среднюю оценку по всем курсам.
+
+        Возвращает среднее значение всех оценок, или 0, если оценок нет.
+
+        Returns:
+            float: Средняя оценка.
         """
         all_grades = []
         for grades in self.grades.values():
@@ -29,7 +62,7 @@ class GetAverageMixin:
 
 
 @total_ordering
-class Student(GetAverageMixin):
+class Student(GradedMixin):
     """
     Класс для студента.
 
@@ -120,12 +153,8 @@ class Student(GetAverageMixin):
 
         if isinstance(lecturer,
                       Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
-            if course in lecturer.grades:
-                lecturer.grades[course].append(grade)
-                return None
-            else:
-                lecturer.grades[course] = [grade]
-                return None
+            lecturer.add_grade(course, grade)
+            return None
         else:
             return 'Ошибка. Студент может поставить оценку только лектору.'
 
@@ -154,7 +183,7 @@ class Mentor:
 
 
 @total_ordering
-class Lecturer(Mentor, GetAverageMixin):
+class Lecturer(Mentor, GradedMixin):
     """
     Класс для лектора.
 
@@ -267,12 +296,8 @@ class Reviewer(Mentor):
             return 'Ошибка. Оценка должна быть от 1 до 10.'
 
         if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
-            if course in student.grades:
-                student.grades[course].append(grade)
-                return None
-            else:
-                student.grades[course] = [grade]
-                return None
+            student.add_grade(course, grade)
+            return None
         else:
             return 'Ошибка. Ревьювер может поставить оценку только студенту.'
 
