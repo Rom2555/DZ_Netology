@@ -13,7 +13,7 @@ class GetAverageMixin:
         """
         Инициализирует экземпляр класса GetAverageMixin.
         """
-        self.grades = None
+        self.grades = {}
 
     def get_average_grade(self):
         """
@@ -51,6 +51,7 @@ class Student(GetAverageMixin):
             surname (str): Фамилия студента.
             gender (str): Пол студента.
         """
+        super().__init__()
         self.name = name
         self.surname = surname
         self.gender = gender
